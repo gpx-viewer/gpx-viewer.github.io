@@ -67,6 +67,28 @@
 
     <div id="drop-hint" class="drop-hint" hidden><span>松开鼠标以加载 GPX</span></div>
 
+    <div id="point-hud" class="hud" hidden>
+      <div class="hud-head">
+        <span id="hud-track" class="hud-track"></span>
+        <span id="hud-seq" class="hud-seq"></span>
+      </div>
+      <div id="hud-time" class="hud-time"></div>
+      <div id="hud-facts" class="hud-facts"></div>
+      <div id="hud-lock" class="hud-lock" hidden>已锁定 · 点地图空白处或按 Esc 解锁</div>
+    </div>
+
+    <div id="timeline" class="timeline" hidden>
+      <div class="timeline-head">
+        <span id="tl-name" class="timeline-name"></span>
+        <span id="tl-time" class="timeline-time"></span>
+      </div>
+      <div class="timeline-row">
+        <button id="tl-play" type="button" class="btn btn-mini">播放</button>
+        <input id="tl-range" class="timeline-range" type="range" min="0" max="0" value="0" step="1">
+      </div>
+      <div id="tl-facts" class="timeline-facts"></div>
+    </div>
+
     <div id="toast" class="toast" hidden></div>
   </main>
 </div>

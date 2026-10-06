@@ -80,6 +80,13 @@ body {
   background: #ffffff;
   border: 1px solid #e3e6ea;
   border-radius: 8px;
+  cursor: pointer;
+}
+
+/* 选中的轨迹 = 时间轴作用的对象 */
+.track.active {
+  border-color: #1664ff;
+  box-shadow: 0 0 0 2px rgba(22, 100, 255, 0.12);
 }
 
 .track-head {
@@ -196,9 +203,125 @@ body {
 
 /* ---------------------------- 浮层 ---------------------------- */
 
+/* 定位点信息卡：贴着地图左上角，不跟随点位，避免地图平移时乱飘 */
+.hud {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 30;
+  max-width: min(340px, calc(100% - 24px));
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #d4d8de;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(31, 35, 41, 0.14);
+  pointer-events: none;
+}
+
+.hud-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.hud-track {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hud-seq {
+  flex: none;
+  margin-left: auto;
+  color: #8a9099;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-time {
+  margin-top: 2px;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-facts {
+  margin-top: 2px;
+  color: #5c636c;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-lock {
+  margin-top: 6px;
+  padding-top: 6px;
+  color: #1664ff;
+  border-top: 1px solid #e3e6ea;
+}
+
+/* ---------------------------- 时间轴 ---------------------------- */
+
+.timeline {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  z-index: 30;
+  width: min(620px, calc(100% - 32px));
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #d4d8de;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(31, 35, 41, 0.14);
+  transform: translateX(-50%);
+}
+
+.timeline-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.timeline-name {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline-time {
+  flex: none;
+  margin-left: auto;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.timeline-range {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+}
+
+.timeline-range:disabled {
+  opacity: 0.4;
+}
+
+.timeline-facts {
+  margin-top: 4px;
+  color: #5c636c;
+  font-variant-numeric: tabular-nums;
+}
+
 .toast {
   position: absolute;
-  bottom: 24px;
+  /* 抬到时间轴面板上方，避免临时提示盖住时间轴 */
+  bottom: 108px;
   left: 50%;
   z-index: 40;
   max-width: min(680px, calc(100% - 48px));
