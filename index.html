@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GPX Viewer</title>
+<link rel="stylesheet" href="./styles.css">
+<script>
+  // 模块脚本加载/执行失败时不会在页面上留下任何痕迹，所以这里显式兜住。
+  function showFatal(message) {
+    var banner = document.getElementById('fatal');
+    if (!banner) return;
+    banner.hidden = false;
+    banner.textContent = '页面出错：' + message;
+  }
+
+  window.addEventListener('error', function (event) {
+    var target = event.target;
+    if (target && target !== window && target.tagName) {
+      // 资源加载错误：只认脚本和样式表。地图瓦片、图片偶发失败是常态，报出来只会变成噪音
+      if (target.tagName === 'SCRIPT' || target.tagName === 'LINK') {
+        showFatal('资源加载失败：' + (target.getAttribute('src') || target.getAttribute('href') || ''));
+      }
+      return;
+    }
+    showFatal(event.message || '未知脚本错误');
+  }, true);
+
+  window.addEventListener('unhandledrejection', function (event) {
+    var reason = event.reason;
+    showFatal((reason && reason.message) || String(reason));
+  });
+</script>
+</head>
+<body>
+
+<div id="fatal" class="fatal" hidden onclick="this.hidden = true" title="点击关闭"></div>
+
+<div id="app">
+  <aside id="sidebar">
+    <header class="sidebar-head">
+      <h1>GPX Viewer</h1>
+      <div class="head-actions">
+        <button id="btn-add" type="button" class="btn btn-primary">添加 GPX</button>
+      </div>
+      <input id="file-input" type="file" accept=".gpx,application/gpx+xml" multiple hidden>
+    </header>
+
+    <div id="track-list" class="track-list">
+      <p id="empty-state" class="empty">
+        还没有轨迹。<br>把 .gpx 文件拖到窗口任意位置，<br>或点上面的「添加 GPX」。
+      </p>
+    </div>
+
+    <footer class="sidebar-foot">
+      <span id="hint">正在初始化…</span>
+      <button id="btn-fit" type="button" class="btn btn-mini">全部可见</button>
+      <span class="legend">
+        <i class="legend-dot" style="background:#2e7d32"></i>起点
+        <i class="legend-dot" style="background:#c62828"></i>终点
+      </span>
+    </footer>
+  </aside>
+
+  <main id="map-wrap">
+    <div id="map" data-placeholder="正在加载高德地图…"></div>
+
+    <div id="drop-hint" class="drop-hint" hidden><span>松开鼠标以加载 GPX</span></div>
+
+    <div id="toast" class="toast" hidden></div>
+  </main>
+</div>
+
+<script type="module" src="./js/app.js"></script>
+</body>
+</html>

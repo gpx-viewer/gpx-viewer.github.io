@@ -1,0 +1,261 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #1f2329;
+  background: #ffffff;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ------------------------------ 侧栏 ------------------------------ */
+
+#sidebar {
+  flex: 0 0 300px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #fafbfc;
+  border-right: 1px solid #e3e6ea;
+}
+
+.sidebar-head {
+  flex: none;
+  padding: 14px 16px;
+  border-bottom: 1px solid #e3e6ea;
+}
+
+.sidebar-head h1 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.head-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.head-actions .btn-primary {
+  flex: 1 1 auto;
+}
+
+.track-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.empty {
+  margin: 24px 8px;
+  color: #8a9099;
+  text-align: center;
+}
+
+.track {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: #ffffff;
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+}
+
+.track-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.track-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.track-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.track-meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1px 10px;
+  margin: 8px 0 0;
+  padding-left: 22px;
+}
+
+.track-meta dt {
+  color: #8a9099;
+}
+
+.track-meta dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.sidebar-foot {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  padding: 10px 12px;
+  color: #8a9099;
+  font-size: 12px;
+  border-top: 1px solid #e3e6ea;
+}
+
+#hint {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  margin-left: 4px;
+  border-radius: 50%;
+}
+
+/* ---------------------------- 地图区域 ---------------------------- */
+
+#map-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#map {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  background: #f2f3f5;
+}
+
+/* #map 一旦被高德塞进子节点，:empty 就不再成立，占位文字自动消失 */
+#map:empty::after {
+  content: attr(data-placeholder);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #a8b0ba;
+}
+
+.drop-hint {
+  position: absolute;
+  inset: 12px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1664ff;
+  background: rgba(22, 100, 255, 0.06);
+  border: 2px dashed #1664ff;
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+/* ---------------------------- 浮层 ---------------------------- */
+
+.toast {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  z-index: 40;
+  max-width: min(680px, calc(100% - 48px));
+  padding: 10px 16px;
+  color: #ffffff;
+  background: rgba(31, 35, 41, 0.92);
+  border-radius: 8px;
+  transform: translateX(-50%);
+}
+
+.toast-error {
+  background: rgba(176, 34, 26, 0.95);
+}
+
+.toast-ok {
+  background: rgba(21, 105, 62, 0.95);
+}
+
+.fatal {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 50;
+  padding: 12px 16px;
+  color: #ffffff;
+  background: #b0221a;
+}
+
+/* ---------------------------- 按钮 ---------------------------- */
+
+.btn {
+  padding: 5px 10px;
+  font: inherit;
+  color: #1f2329;
+  background: #ffffff;
+  border: 1px solid #d4d8de;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  border-color: #a8b0ba;
+}
+
+.btn-primary {
+  color: #ffffff;
+  background: #1664ff;
+  border-color: #1664ff;
+}
+
+.btn-primary:hover {
+  background: #0d55e8;
+  border-color: #0d55e8;
+}
+
+.btn-mini {
+  padding: 3px 8px;
+  font-size: 12px;
+}
