@@ -5,6 +5,8 @@
 纯静态页面，没有构建步骤、没有 npm 依赖 —— 推上 `main` 分支即刻生效。
 线上地址：<https://gpx-viewer.github.io/>
 
+> 在本仓库写代码前请先读 [`AGENTS.md`](./AGENTS.md)：工作纪律、硬约束与验收方式都在那里。
+
 ## 使用
 
 打开页面即可用（Key 已内置在 `js/credentials.js`，无需任何配置）。
