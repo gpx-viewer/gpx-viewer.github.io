@@ -1,3 +1,55 @@
+/* 主题令牌：全部颜色集中在这里，组件里只引用变量。
+   暗色值唯一的覆盖入口是 html[data-theme="dark"] —— 初始值由 index.html
+   头部内联脚本在首帧前定好（存过用存的，没存跟系统），切换归 js/app.js。 */
+
+:root {
+  color-scheme: light;
+  --text: #1f2329;
+  --text-secondary: #5c636c;
+  --muted: #8a9099;
+  --placeholder: #a8b0ba;
+  --bg: #ffffff;
+  --panel: #fafbfc;
+  --card: #ffffff;
+  --border: #e3e6ea;
+  --border-strong: #d4d8de;
+  --border-hover: #a8b0ba;
+  --primary: #1664ff;
+  --primary-hover: #0d55e8;
+  --active-ring: rgba(22, 100, 255, 0.12);
+  --map-bg: #f2f3f5;
+  --overlay-bg: rgba(255, 255, 255, 0.96);
+  --shadow: rgba(31, 35, 41, 0.14);
+  --drop-bg: rgba(22, 100, 255, 0.06);
+  --toast-bg: rgba(31, 35, 41, 0.92);
+  --toast-fg: #ffffff;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --text: #e8eaed;
+  --text-secondary: #b6bcc4;
+  --muted: #9aa0a8;
+  --placeholder: #6b727a;
+  --bg: #1a1c1f;
+  --panel: #222528;
+  --card: #26292d;
+  --border: #3a3f45;
+  --border-strong: #4a5057;
+  --border-hover: #6b727a;
+  /* 暗底上原蓝 #1664ff 偏闷，提亮一档；hover 反向变亮（浅色主题是变暗） */
+  --primary: #4d8aff;
+  --primary-hover: #6b9dff;
+  --active-ring: rgba(77, 138, 255, 0.28);
+  --map-bg: #1a1c1f;
+  --overlay-bg: rgba(30, 33, 37, 0.96);
+  --shadow: rgba(0, 0, 0, 0.5);
+  --drop-bg: rgba(77, 138, 255, 0.15);
+  /* 暗色下 toast 反转成浅底深字，压在暗地图上才看得清 */
+  --toast-bg: rgba(232, 234, 237, 0.95);
+  --toast-fg: #1f2329;
+}
+
 *,
 *::before,
 *::after {
@@ -18,8 +70,8 @@ body {
   font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 13px;
   line-height: 1.6;
-  color: #1f2329;
-  background: #ffffff;
+  color: var(--text);
+  background: var(--bg);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -36,14 +88,14 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  background: #fafbfc;
-  border-right: 1px solid #e3e6ea;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
 }
 
 .sidebar-head {
   flex: none;
   padding: 14px 16px;
-  border-bottom: 1px solid #e3e6ea;
+  border-bottom: 1px solid var(--border);
 }
 
 .sidebar-head h1 {
@@ -70,23 +122,23 @@ body {
 
 .empty {
   margin: 24px 8px;
-  color: #8a9099;
+  color: var(--muted);
   text-align: center;
 }
 
 .track {
   padding: 10px 12px;
   margin-bottom: 8px;
-  background: #ffffff;
-  border: 1px solid #e3e6ea;
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 8px;
   cursor: pointer;
 }
 
 /* 选中的轨迹 = 时间轴作用的对象 */
 .track.active {
-  border-color: #1664ff;
-  box-shadow: 0 0 0 2px rgba(22, 100, 255, 0.12);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--active-ring);
 }
 
 .track-head {
@@ -120,7 +172,7 @@ body {
 }
 
 .track-meta dt {
-  color: #8a9099;
+  color: var(--muted);
 }
 
 .track-meta dd {
@@ -135,9 +187,9 @@ body {
   align-items: center;
   gap: 6px 8px;
   padding: 10px 12px;
-  color: #8a9099;
+  color: var(--muted);
   font-size: 12px;
-  border-top: 1px solid #e3e6ea;
+  border-top: 1px solid var(--border);
 }
 
 #hint {
@@ -172,7 +224,7 @@ body {
   flex: 1 1 auto;
   min-height: 0;
   width: 100%;
-  background: #f2f3f5;
+  background: var(--map-bg);
 }
 
 /* #map 一旦被高德塞进子节点，:empty 就不再成立，占位文字自动消失 */
@@ -182,7 +234,7 @@ body {
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #a8b0ba;
+  color: var(--placeholder);
 }
 
 .drop-hint {
@@ -194,9 +246,9 @@ body {
   justify-content: center;
   font-size: 15px;
   font-weight: 500;
-  color: #1664ff;
-  background: rgba(22, 100, 255, 0.06);
-  border: 2px dashed #1664ff;
+  color: var(--primary);
+  background: var(--drop-bg);
+  border: 2px dashed var(--primary);
   border-radius: 12px;
   pointer-events: none;
 }
@@ -211,10 +263,10 @@ body {
   z-index: 30;
   max-width: min(340px, calc(100% - 24px));
   padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid #d4d8de;
+  background: var(--overlay-bg);
+  border: 1px solid var(--border-strong);
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(31, 35, 41, 0.14);
+  box-shadow: 0 2px 10px var(--shadow);
   pointer-events: none;
 }
 
@@ -235,7 +287,7 @@ body {
 .hud-seq {
   flex: none;
   margin-left: auto;
-  color: #8a9099;
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -247,15 +299,15 @@ body {
 
 .hud-facts {
   margin-top: 2px;
-  color: #5c636c;
+  color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }
 
 .hud-lock {
   margin-top: 6px;
   padding-top: 6px;
-  color: #1664ff;
-  border-top: 1px solid #e3e6ea;
+  color: var(--primary);
+  border-top: 1px solid var(--border);
 }
 
 /* ---------------------------- 时间轴 ---------------------------- */
@@ -267,10 +319,10 @@ body {
   z-index: 30;
   width: min(620px, calc(100% - 32px));
   padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid #d4d8de;
+  background: var(--overlay-bg);
+  border: 1px solid var(--border-strong);
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(31, 35, 41, 0.14);
+  box-shadow: 0 2px 10px var(--shadow);
   transform: translateX(-50%);
 }
 
@@ -314,7 +366,7 @@ body {
 
 .timeline-facts {
   margin-top: 4px;
-  color: #5c636c;
+  color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }
 
@@ -326,8 +378,8 @@ body {
   z-index: 40;
   max-width: min(680px, calc(100% - 48px));
   padding: 10px 16px;
-  color: #ffffff;
-  background: rgba(31, 35, 41, 0.92);
+  color: var(--toast-fg);
+  background: var(--toast-bg);
   border-radius: 8px;
   transform: translateX(-50%);
 }
@@ -356,26 +408,26 @@ body {
 .btn {
   padding: 5px 10px;
   font: inherit;
-  color: #1f2329;
-  background: #ffffff;
-  border: 1px solid #d4d8de;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border-strong);
   border-radius: 6px;
   cursor: pointer;
 }
 
 .btn:hover {
-  border-color: #a8b0ba;
+  border-color: var(--border-hover);
 }
 
 .btn-primary {
   color: #ffffff;
-  background: #1664ff;
-  border-color: #1664ff;
+  background: var(--primary);
+  border-color: var(--primary);
 }
 
 .btn-primary:hover {
-  background: #0d55e8;
-  border-color: #0d55e8;
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
 }
 
 .btn-mini {

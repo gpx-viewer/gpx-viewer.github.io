@@ -34,6 +34,7 @@ const PLAY_FRAMES = 400;
 
 const els = {
   add: document.getElementById('btn-add'),
+  theme: document.getElementById('btn-theme'),
   fit: document.getElementById('btn-fit'),
   fileInput: document.getElementById('file-input'),
   list: document.getElementById('track-list'),
@@ -79,6 +80,57 @@ const state = {
 const probe = { lng: 0, lat: 0 };
 
 
+/* ------------------------------ 主题 ------------------------------ */
+
+const THEME_STORAGE_KEY = 'gpxviewer-theme';
+// 高德底图不归 CSS 管：暗色 = 官方 dark 样式，浅色 = 默认样式（官方命名为 normal）
+const MAP_STYLES = { light: 'amap://styles/normal', dark: 'amap://styles/dark' };
+
+/** 当前主题的单一判定来源：index.html 头部脚本已在首帧前写好 data-theme */
+function currentTheme() {
+  return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+}
+
+/** 读手动选择过的主题；存储不可用（如隐私模式拒绝写）返回 null = 跟系统走 */
+function storedTheme() {
+  try {
+    return localStorage.getItem(THEME_STORAGE_KEY);
+  } catch (err) {
+    return null;
+  }
+}
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  els.theme.textContent = theme === 'dark' ? '☀️' : '🌙';
+  els.theme.title = theme === 'dark' ? '切换到浅色' : '切换到深色';
+  // 地图没就绪（加载失败）时跳过；startMap 创建地图时会按当前主题传入样式
+  if (state.map) state.map.setMapStyle(MAP_STYLES[theme]);
+}
+
+function toggleTheme() {
+  const theme = currentTheme() === 'dark' ? 'light' : 'dark';
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch (err) {
+    // 存不进去就只切本次会话，下次打开回到跟随系统
+  }
+  applyTheme(theme);
+}
+
+function bindTheme() {
+  els.theme.addEventListener('click', toggleTheme);
+
+  // 只有从未手动选择过才跟系统走；一旦存了偏好，系统切换不再干扰
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
+    if (storedTheme() !== null) return;
+    applyTheme(event.matches ? 'dark' : 'light');
+  });
+
+  // 把按钮文案 / 图标对齐到头部脚本已定好的初始主题（此时地图多半未就绪，样式由 startMap 传）
+  applyTheme(currentTheme());
+}
+
 /* ------------------------------ 启动 ------------------------------ */
 
 function boot() {
@@ -89,6 +141,7 @@ function boot() {
 
   bindToolbar();
   bindTimeline();
+  bindTheme();
   bindPointInspect();
   bindDragAndDrop();
   syncEmptyState();
@@ -105,6 +158,7 @@ async function startMap() {
       zoom: 12,
       center: [116.397428, 39.90923],
       viewMode: '2D',
+      mapStyle: MAP_STYLES[currentTheme()],
     });
     state.map.addControl(new AMap.ToolBar());
     state.map.addControl(new AMap.Scale());
@@ -835,6 +889,8 @@ window.gpxViewer = {
   setActive,
   setScrubIndex,
   hitTestAt,
+  toggleTheme,
+  currentTheme,
   amapKey: AMAP_KEY,
 };
 

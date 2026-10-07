@@ -4,6 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GPX Viewer</title>
+<script>
+  // 初始主题必须在首帧前定下来，否则暗色环境会闪一帧白屏。这里只做这一件事：
+  // 手动选择过用存储值，没存过跟系统；切换、记忆、地图样式都归 js/app.js 管。
+  (function () {
+    var saved = null;
+    try { saved = localStorage.getItem('gpxviewer-theme'); } catch (e) { /* 存储不可用就跟系统 */ }
+    var dark =
+      saved === 'dark' ||
+      (saved === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (dark) document.documentElement.dataset.theme = 'dark';
+  })();
+</script>
 <link rel="stylesheet" href="./styles.css">
 <script>
   // 模块脚本加载/执行失败时不会在页面上留下任何痕迹，所以这里显式兜住。
@@ -41,6 +53,7 @@
     <header class="sidebar-head">
       <h1>GPX Viewer</h1>
       <div class="head-actions">
+        <button id="btn-theme" type="button" class="btn btn-mini" title="切换深浅色">🌙</button>
         <button id="btn-add" type="button" class="btn btn-primary">添加 GPX</button>
       </div>
       <input id="file-input" type="file" accept=".gpx,application/gpx+xml" multiple hidden>
