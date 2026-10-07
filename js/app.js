@@ -8,6 +8,14 @@ import { wgs84ToGcj02, haversine } from './transform.js';
 import { parseGpx } from './gpx.js';
 import { loadAmap } from './amap-loader.js';
 import { AMAP_KEY } from './credentials.js';
+import {
+  ACTIVITY_LABELS,
+  MARKER_SIZE,
+  activityGlyphSvg,
+  activityMarkerSvg,
+  defaultMarkerSvg,
+  detectActivity,
+} from './activity.js';
 
 const PALETTE = [
   '#d32f2f',
@@ -31,6 +39,12 @@ const HOVER_THROTTLE_MS = 80;
 // 时间轴播放：每 PLAY_TICK_MS 走一帧，全程约 PLAY_FRAMES 帧
 const PLAY_TICK_MS = 60;
 const PLAY_FRAMES = 400;
+
+// 地图标记的 zIndex。起点/终点圆点 60，查点用的悬停/锁定圆点 70
+const ENDPOINT_Z = 60;
+const POINT_Z = 70;
+// 播放中的活动图标压在它们之上：那是当前焦点，且底盘的直径比圆点大得多
+const SCRUB_Z = 80;
 
 const els = {
   add: document.getElementById('btn-add'),
@@ -70,7 +84,8 @@ const state = {
   hover: null,
   locked: null,
   lastHoverAt: 0,
-  markers: { hover: null, lock: null, scrub: null },
+  // 查点用的三个标记（悬停 / 锁定 / 时间轴当前位置）+ 播放标记当前挂的图标类型
+  markers: { hover: null, lock: null, scrub: null, scrubActivity: null },
   scrubIndex: 0,
   playing: false,
   playTimer: null,
@@ -245,6 +260,8 @@ function addTrack(track, sourceName) {
     id: state.nextId++,
     name: track.name,
     source: sourceName,
+    // 活动类型按「文件」判，不看 <trk>/<name>：一个文件里的多条轨迹同属一次活动
+    activity: detectActivity(sourceName),
     color: PALETTE[state.colorCursor++ % PALETTE.length],
     visible: true,
     stats: track.stats,
@@ -274,7 +291,7 @@ function endpointDot(AMap, lnglat, color) {
     strokeWeight: 2,
     fillColor: color,
     fillOpacity: 1,
-    zIndex: 60,
+    zIndex: ENDPOINT_Z,
   });
 }
 
@@ -367,7 +384,19 @@ function renderTrackItem(item) {
   remove.textContent = '删除';
   remove.addEventListener('click', () => removeTrack(item));
 
-  head.append(toggle, dot, name, remove);
+  head.append(toggle, dot);
+
+  // 活动图标只在文件名认得出活动类型时出现；认不出就什么都不放，不拿通用图标凑数。
+  // innerHTML 拼的是 activity.js 里写死的 SVG 常量，不含任何外部输入。
+  if (item.activity) {
+    const icon = document.createElement('span');
+    icon.className = 'track-icon';
+    icon.title = ACTIVITY_LABELS[item.activity];
+    icon.innerHTML = activityGlyphSvg(item.activity);
+    head.append(icon);
+  }
+
+  head.append(name, remove);
 
   const stats = item.stats;
   const meta = document.createElement('dl');
@@ -415,15 +444,37 @@ function createPointMarkers() {
   const AMap = state.amap;
   const center = state.map.getCenter();
   // 起点 / 终点那两个圆点 zIndex 是 60，这里要压在它们上面
-  const common = { radius: 6, strokeColor: '#ffffff', strokeWeight: 2, fillOpacity: 1, zIndex: 70 };
+  const common = { radius: 6, strokeColor: '#ffffff', strokeWeight: 2, fillOpacity: 1, zIndex: POINT_Z };
 
   state.markers.hover = new AMap.CircleMarker({ ...common, center, fillColor: '#f57c00' });
   state.markers.lock = new AMap.CircleMarker({ ...common, center, fillColor: '#1664ff' });
-  state.markers.scrub = new AMap.CircleMarker({ ...common, center, fillColor: '#00838f' });
+
+  // 时间轴当前位置用 Marker 而不是 CircleMarker：它的内容可以换（骑行 / 步行图标，
+  // 未识别活动时是默认圆点），而 CircleMarker 只能画圆。
+  // Marker 默认锚点在「底部中心」，offset 取画布的一半把它拉回「图标中心对准定位点」。
+  state.markers.scrubActivity = null;
+  state.markers.scrub = new AMap.Marker({
+    position: center,
+    content: defaultMarkerSvg(),
+    offset: new AMap.Pixel(-MARKER_SIZE / 2, -MARKER_SIZE / 2),
+    zIndex: SCRUB_Z,
+  });
 
   const markers = [state.markers.hover, state.markers.lock, state.markers.scrub];
   state.map.add(markers);
   markers.forEach((marker) => marker.hide());
+}
+
+/**
+ * 播放标记是三条轨迹共用的一个，切轨迹时要换成那条轨迹的图标。
+ * 只在活动类型真的变了才 setContent —— 每帧重建 DOM 纯属浪费，
+ * 而且会打断正在播放的动画。
+ */
+function syncScrubIcon(item) {
+  const activity = item.activity || null;
+  if (state.markers.scrubActivity === activity) return;
+  state.markers.scrubActivity = activity;
+  state.markers.scrub.setContent(activity ? activityMarkerSvg(activity) : defaultMarkerSvg());
 }
 
 /**
@@ -654,7 +705,9 @@ function setScrubIndex(index) {
     `时间轴第 ${clamped + 1} / ${timed.length} 个时间戳 · ` +
     neighbourFacts(item, point).join(' · ');
 
-  state.markers.scrub.setCenter(new state.amap.LngLat(point.glng, point.glat));
+  syncScrubIcon(item);
+  // Marker 没有 setCenter，定位用 setPosition
+  state.markers.scrub.setPosition(new state.amap.LngLat(point.glng, point.glat));
   state.markers.scrub.show();
 }
 
@@ -879,6 +932,7 @@ function bindDragAndDrop() {
 //   gpxViewer.state.tracks[0].points[100]        // 第 101 个定位点（含时间、海拔）
 //   gpxViewer.setScrubIndex(500)                 // 时间轴跳到第 501 个时间戳
 //   gpxViewer.hitTestAt(new AMap.Pixel(640, 300)) // 容器某像素处命中的定位点
+//   gpxViewer.detectActivity('Walking 2026-10-06T112533Z.gpx') // → 'walking'
 window.gpxViewer = {
   state,
   addFiles,
@@ -891,6 +945,7 @@ window.gpxViewer = {
   hitTestAt,
   toggleTheme,
   currentTheme,
+  detectActivity,
   amapKey: AMAP_KEY,
 };
 

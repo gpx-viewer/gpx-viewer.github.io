@@ -154,6 +154,20 @@ body {
   border-radius: 50%;
 }
 
+/* 活动图标（骑行 / 步行）：只在文件名认得出活动类型时才有这个节点。
+   16×16 是格子，图形按自身比例在格子里居中 —— 自行车偏宽、行人偏窄都成立。 */
+.track-icon {
+  display: inline-flex;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--text-secondary);
+}
+
+.track-icon svg {
+  display: block;
+}
+
 .track-name {
   flex: 1 1 auto;
   min-width: 0;
@@ -235,6 +249,20 @@ body {
   justify-content: center;
   height: 100%;
   color: var(--placeholder);
+}
+
+/* 时间轴播放时的活动图标（高德 Marker 的 content，DOM 挂在 #map 容器里，
+   所以这些 CSS 变量照常生效）。底盘给它一圈底色和描边 —— 图标要压在暗色底图、
+   卫星图上都看得清，光靠图形本身不够。 */
+.activity-marker-svg {
+  display: block;
+  color: var(--text);
+}
+
+.activity-marker-disc {
+  fill: var(--overlay-bg);
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
 }
 
 .drop-hint {

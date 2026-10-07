@@ -50,7 +50,7 @@ chenyang 自己核对 GPX 轨迹用的**个人调试工具**，不是产品。MV
 ## 调试入口
 
 浏览器控制台 `gpxViewer`：`state.tracks`、`toggleTheme`、`parseGpx`、`wgs84ToGcj02`、
-`addFiles`、`fitAll`、`setScrubIndex`、`hitTestAt`（容器像素）。
+`addFiles`、`fitAll`、`setScrubIndex`、`hitTestAt`（容器像素）、`detectActivity`（文件名 → 活动类型）。
 
 ## 深浅色主题
 
